@@ -1,3 +1,4 @@
+# Setting up our workspace
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -5,6 +6,77 @@ from sklearn.model_selection import train_test_split
 from matplotlib import pyplot as plt
 plt.style.use('seaborn')
 
-# data url
+
+# Wine Quality dataset URL
 url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTDsF-Aey_9_nQWZPFiAZgavpg8p2WEH0oLtofQI9E7XoCQrpe7uSlyqcFnGibYTrpy6RnIa2Vq1Dba/pub?output=csv'
+
+# Import/Setup data
+dataframe = pd.read_csv(url)
+num_rows, num_cols = dataframe.shape
+print(num_rows, num_cols)
+
+dataframe = dataframe.iloc[:, 1:num_cols] # not inclusive ending
+print(dataframe.head())
+num_rows, num_cols = dataframe.shape
+print(num_rows, num_cols) # update it now that we have modified our dataframe
+
+data = dataframe.values # convert this to an array of numbers...no headers literally a matrix
+
+
+# Splitting into training/testing sets
+# build into inputs and outputs
+y_idx = 10 # alc is at 11
+x_idxs = []
+for i in range(num_cols):
+  if i != y_idx:
+    x_idxs.append(i) # add everything that we want
+
+# x is a matrix, y is a vector
+X, y = data[:, x_idxs], data[:, alc_idx]
+print(X.shape, y.shape)
+
+# split into sets
+# import train test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1)
+print(X_train.shape, X_test.shape, y_train.shape, y_test.shape)
+
+
+# Model fitting
+# set our model to be of a linear regression
+model = LinearRegression() # import sklearn
+
+# fit the model
+model.fit(X_train, y_train)
+
+# actually use the model to make a wine quality prediction
+yhat = model.predict(X_test)
+
+from sklearn.metrics import mean_absolute_error
+# for evaluation purposes
+
+# seeing how accurate our prediction was
+avgerror = mean_absolute_error(y_test, yhat)
+
+# mean abs error = avg of absolute value of prediction points minus true values
+#                  sum of |(yi's - xi's)| / n
+
+print('Avg Error: %.3f' % avgerror)
+
+plt.scatter(y_test, yhat)
+plt.xlim(6, 15)
+plt.ylim(6,15)
+plt.show()
+
+
+# Data analysis
+variable_names = dataframe.columns
+coeffs = model.coef_
+intercept = model.intercept_
+
+print(f"The quantity of {variable_names[y_idx]} is modelled by:")
+x_var_names = dataframe.columns.tolist()
+x_var_names.remove(variable_names[y_idx])
+# x_var_names = dataframe.columns.tolist().remove(variable_names[y_idx])
+for i in range(len(x_var_names)):
+  print(f"{coeffs[i]} times {x_var_names[i]}")
 
